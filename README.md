@@ -433,5 +433,8 @@ docker-stop-monitoring:
  ![gitlab4](https://github.com/rastamalik/project/blob/master/terraform/6.png?raw=true "Optional Title")
   
  * скрины работющих сервисов:
- 
+ ![gitlab5](https://github.com/rastamalik/project/blob/master/terraform/8.png?raw=true "Optional Title")
+ ![gitlab6](https://github.com/rastamalik/project/blob/master/terraform/9.png?raw=true "Optional Title") 
+ ![gitlab7](https://github.com/rastamalik/project/blob/master/terraform/10.png?raw=true "Optional Title")
+ ![gitlab8](https://github.com/rastamalik/project/blob/master/terraform/11.png?raw=true "Optional Title")
  
