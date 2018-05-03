@@ -542,4 +542,51 @@ d) Посмотрим поднятые таргеты и снимем метри
  ![gitlab18](https://github.com/rastamalik/project/blob/master/terraform/21.png?raw=true "Optional Title") 
  ![gitlab19](https://github.com/rastamalik/project/blob/master/terraform/22.png?raw=true "Optional Title")
 
+e) Для системы рассылки оповещений применим **alertmanager**, в каталоге **monitoring** создадим каталог **alertmanager** с docker-файлом и конфигурационным файлом:
+```
+Dockerfile
+FROM  prom/alertmanager:v0.14.0 
+ADD  config.yml /etc/alertmanager/ 
+```
+```
+config.yml
+global:
+ 
+   slack_api_url:  'https://hooks.slack.com/services/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' 
+route:
+  group_by: [Alertname]
+  receiver: email
+route:
+ receiver: slack-notifications   
+ group_by: [Alertname]
+receivers:
+- name: email
+  email_configs:
+  - to: rastamalik@gmail.com
+    from: rastamalik@gmail.com
+    smarthost: smtp.gmail.com:587
+    auth_username: "rastamalik@gmail.com"
+    auth_identity: "rastamalik@gmail.com"
+    auth_password: "password"
+- name:  slack-notifications 
+  slack_configs:
+  - channel: '#rastamalik'
+```
+* в папке **prometheus** создадим файл **alerts.yml**
+```
+groups:
+  - name: alert.rules
+    rules:
+    - alert: InstanceDown
+      expr: up == 0
+      for: 1m
+      labels:
+        severity: page
+      annotations:
+        description: '{{ $labels.instance }} of job {{ $labels.job }} has been down for more than 1 minute'
+        summary: 'Instance {{ $labels.instance }} down'
+```
+* при падении одного из сервисов идет оповещение в slack и сообщение по почте.
+
+а)
 
