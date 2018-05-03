@@ -237,6 +237,201 @@ web:
   * переменная **CI_REGISTRY_PASSWORD** пароль от Docker Hub
   ![gitlab1](https://github.com/rastamalik/project/blob/master/terraform/4.png?raw=true "Optional Title")
   
+  g) Запушем наш репозиторий на **GitLab** и создадим файл сборки **.gitlab-ci.yml**:
+  ```
+  .gitlab-ci.yml
+
+image: docker:stable
+stages:
+ - test
+ - stage
+ - build
+ - deploy
+ - stop
+
+  
+
+services:
+- docker:dind
+
+before_script:
+
+ - apk add --no-cache py-pip
+ - pip install docker-compose
+
+#Стадия тестирования
+
+unittests_ui:
+  stage: test
+  script:
+    
+    - cd search_engine_ui/tests
+    - pip install -q -r requirements-test.txt
+    - coverage run -m unittest discover -s /
+    - coverage report ui.py
+  tags:
+    - docker
+unittests_crawler:
+  stage: test
+  script:
+    
+    - cd search_engine_crawler/tests
+    - pip install -q -r requirements-test.txt
+    - coverage run -m unittest discover -s /
+    - coverage report crawler.py
+  tags:
+    - docker 
+#В стадию stage поднимаем сервисы мониторинга и логирования
+
+docker-logging:
+  stage: stage
+  variables:
+    DOCKER_HOST: tcp://35.205.243.235:2376
+    DOCKER_TLS_VERIFY: 1
+    DOCKER_CERT_PATH: "/certs"
+  script:
+    - mkdir -p $DOCKER_CERT_PATH
+    - echo "$TLSCACERT" > $DOCKER_CERT_PATH/ca.pem
+    - echo "$TLSCERT" > $DOCKER_CERT_PATH/cert.pem
+    - echo "$TLSKEY" > $DOCKER_CERT_PATH/key.pem
+    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
+    - docker-compose -f docker-compose-logging.yml up -d
+    - rm -rf $DOCKER_CERT_PATH
+  environment:
+    name: kibana
+    url: http://35.205.243.235:5601
+  only:
+    - master
+  tags:
+    - docker            
+
+# Стадия build, собираем наши образы и пушим их на Docker Hub     
+
+docker-build:
+  stage: build
+  script: 
+    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
+    - cd search_engine_ui
+    - docker build -t rastamalik/crawler_ui .
+    - docker push rastamalik/crawler_ui
+    - cd ../search_engine_crawler
+    
+    - docker build -t rastamalik/crawler_api .
+    - docker push rastamalik/crawler_api
+    - cd ..
+    - cd monitoring/prometheus
+    - docker build -t rastamalik/prometheus .
+    - docker push rastamalik/prometheus
+    - cd ../../
+    - cd monitoring/alertmanager
+    - docker build -t rastamalik/alertmanager .
+    - docker push rastamalik/alertmanager
+
+# Стадия deploy, поднимаем все сервисы через docker-compose 
+ 
+docker-deploy:
+  stage: deploy
+  variables:
+    DOCKER_HOST: tcp://35.205.243.235:2376
+    DOCKER_TLS_VERIFY: 1
+    DOCKER_CERT_PATH: "/certs"
+  script:
+    - mkdir -p $DOCKER_CERT_PATH
+    - echo "$TLSCACERT" > $DOCKER_CERT_PATH/ca.pem
+    - echo "$TLSCERT" > $DOCKER_CERT_PATH/cert.pem
+    - echo "$TLSKEY" > $DOCKER_CERT_PATH/key.pem
+    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
+    - docker-compose up -d
+    - docker-compose stop crawler
+    - docker-compose start crawler
+   
+    - rm -rf $DOCKER_CERT_PATH
+  environment:
+    name: master
+    url: http://35.205.243.235:8000
+  only:
+    - master
+  tags:
+    - docker
+# Поднимаем мониторинг и логирование
+
+docker-monitoring:
+  stage: stage
+  variables:
+    DOCKER_HOST: tcp://35.205.243.235:2376
+    DOCKER_TLS_VERIFY: 1
+    DOCKER_CERT_PATH: "/certs"
+  script:
+    - mkdir -p $DOCKER_CERT_PATH
+    - echo "$TLSCACERT" > $DOCKER_CERT_PATH/ca.pem
+    - echo "$TLSCERT" > $DOCKER_CERT_PATH/cert.pem
+    - echo "$TLSKEY" > $DOCKER_CERT_PATH/key.pem
+    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
+    - docker-compose -f docker-compose-monitoring.yml up -d
+    - rm -rf $DOCKER_CERT_PATH
+    
+  environment:
+    name: prometheus
+    url: http://35.205.243.235:9090
+  only:
+    - master
+  tags:
+    - docker
+docker-grafana:
+ stage: stage
+ script:
+    - echo "Grafana"
+ environment:
+    name: Grafana
+    url: http://35.205.243.235:3000
+ only:
+    - master
+ tags:
+    - docker
+    
+
+docker-stop-crawler:
+  stage: stop
+  when: manual
+  variables:
+    DOCKER_HOST: tcp://35.205.243.235:2376
+    DOCKER_TLS_VERIFY: 1
+    DOCKER_CERT_PATH: "/certs"
+  script:
+    - mkdir -p $DOCKER_CERT_PATH
+    - echo "$TLSCACERT" > $DOCKER_CERT_PATH/ca.pem
+    - echo "$TLSCERT" > $DOCKER_CERT_PATH/cert.pem
+    - echo "$TLSKEY" > $DOCKER_CERT_PATH/key.pem
+    - docker-compose down
+  
+    - rm -rf $DOCKER_CERT_PATH
+    
+  
+  tags:
+    - docker 
+docker-stop-monitoring:
+  stage: stop
+  when: manual
+  variables:
+    DOCKER_HOST: tcp://35.205.243.235:2376
+    DOCKER_TLS_VERIFY: 1
+    DOCKER_CERT_PATH: "/certs"
+  script:
+    - mkdir -p $DOCKER_CERT_PATH
+    - echo "$TLSCACERT" > $DOCKER_CERT_PATH/ca.pem
+    - echo "$TLSCERT" > $DOCKER_CERT_PATH/cert.pem
+    - echo "$TLSKEY" > $DOCKER_CERT_PATH/key.pem
+   
+    - docker-compose -f docker-compose-monitoring.yml down
+    - rm -rf $DOCKER_CERT_PATH
+    
+  
+  tags:
+    - docker        
+  
+```
+
+  
   
   
   
