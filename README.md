@@ -196,6 +196,7 @@ $ ls
 ca-key.pem  ca.srl    extfile.cnf  server-cert.pem
 ca.pem      cert.pem  key.pem      server-key.pem
 ```
+
 d) Настроим сервер с **Gitlab-runner**:
 * зайдем по ssh на серверб,создадим каталоги ```mkdir -p /srv/gitlab/config /srv/gitlab/data /srv/gitlab/logs```, и создадим **docker-compose.yml** в каталоге **/srv/gitlab/** с содержимым:
 ```
@@ -236,7 +237,8 @@ web:
   ![gitlab1](https://github.com/rastamalik/project/blob/master/terraform/4.png?raw=true "Optional Title")
   
   g) Запушем наш репозиторий на **GitLab** и создадим файл сборки **.gitlab-ci.yml**:
-  ```
+ 
+ ```
   .gitlab-ci.yml
 
 image: docker:stable
@@ -428,6 +430,9 @@ docker-stop-monitoring:
     - docker        
   
 ```
+
+# * скрины pipeline и environments
+
  ![gitlab2](https://github.com/rastamalik/project/blob/master/terraform/7.png?raw=true "Optional Title")
  ![gitlab3](https://github.com/rastamalik/project/blob/master/terraform/5.png?raw=true "Optional Title") 
  ![gitlab4](https://github.com/rastamalik/project/blob/master/terraform/6.png?raw=true "Optional Title")
@@ -441,7 +446,9 @@ docker-stop-monitoring:
 
 
 3. Мониторинг и логирование
+
 a) Для мониторинга используем **Prometheus**, а для визуализации **Grafana**, в каталоге **monitoring** создадим каталог **prometheus** c docker файлом и файлом конфигруации:
+
 ```
 Dockerfile
 FROM  prom/prometheus:v2.1.0
