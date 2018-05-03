@@ -1,10 +1,4 @@
-FROM ubuntu:12.04
-
-
-ENV DEBIAN_FRONTEND noninteractive
-
-RUN apt-get update
-RUN apt-get install -y python python-pip python-virtualenv gunicorn
+FROM  python:3.6.0-alpine 
 
 # Setup flask application
 RUN mkdir -p /deploy/app
