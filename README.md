@@ -120,3 +120,101 @@ docker-compose start crawler
 ![crawler2](https://github.com/rastamalik/project/blob/master/terraform/2.png?raw=true "Optional Title")
 
  ![crawler3](https://github.com/rastamalik/project/blob/master/terraform/3.png?raw=true "Optional Title")
+ 
+ 
+2. Для развертывания приложения для прогона в GitLab CI нам понадобяться два сервера, один для для запуска **gitlab-runner** второй для сервиса **Docker**.
+a) Создадим VM для **gitlab-runner** с помощью **terraform**:
+```
+provider "google" {
+  version = "1.4.0"
+  project = "${var.project}"
+  region  = "${var.region}"
+
+}
+
+
+resource "google_compute_instance" "app" {
+   name         = "gitlab-ci"
+  machine_type = "n1-standard-1"
+  zone         = "${var.zone}"
+  boot_disk {
+    initialize_params {
+      image = "${var.disk_image}"
+    }
+  }
+
+  metadata {
+    sshKeys = "appuser:${file(var.public_key_path)} "
+        
+ }
+  
+  network_interface {
+    network       = "default"
+    access_config = {}
+  }
+  connection {
+    type        = "ssh"
+    user        = "appuser"
+    agent       = false
+    private_key = "${file(var.private_key)}"
+  }
+  
+  provisioner "remote-exec" {
+    script = "files/docker.sh"
+  }
+}
+```
+
+b) Создадим VM для **Docker-сервиса** с помощью **docker-machine**:
+```
+docker-machine create --driver google \
+   --google-project  docker-193613   \
+   --google-zone europe-west1-b \
+   --google-machine-type n1-standard-1 \
+   --google-machine-image $(gcloud compute images list --filter ubuntu-1604-lts --uri) \
+   docker-host2
+```
+e) Необходимо развернуть защищенное соединение между **gitlab-runner** и сервисом **Docker** на сервере **docker-host2**.
+* заходим по ssh на docker-host2
+* и проделываем следующии операции:
+```
+$ mkdir certificates
+$ cd certificates
+$ openssl genrsa -aes256 -out ca-key.pem 4096
+$ openssl req -new -x509 -days 365 -key ca-key.pem -sha256 -out ca.pem
+$ openssl genrsa -out server-key.pem 4096
+$ openssl req -subj "/CN=docker-host2" -sha256 -new -key server-key.pem -out server.csr
+$ echo subjectAltName = DNS:manager,IP:<IP сервера где запущен gitlab-runner> >> extfile.cnf
+$ openssl x509 -req -days 365 -sha256 -in server.csr -CA ca.pem -CAkey ca-key.pem \
+  -CAcreateserial -out server-cert.pem -extfile extfile.cnf
+$ openssl genrsa -out key.pem 4096
+$ openssl req -subj '/CN=client' -new -key key.pem -out client.csr
+$ echo extendedKeyUsage = clientAuth >> extfile.cnf
+$ openssl x509 -req -days 365 -sha256 -in client.csr -CA ca.pem -CAkey ca-key.pem \
+  -CAcreateserial -out cert.pem -extfile extfile.cnf
+$ rm -v client.csr server.csr
+В итоге мы получим следующие файлы:
+$ ls
+ca-key.pem  ca.srl    extfile.cnf  server-cert.pem
+ca.pem      cert.pem  key.pem      server-key.pem
+```
+d) Настроим сервер с **Gitlab-runner**:
+* зайдем по ssh на серверб,создадим каталоги ```mkdir -p /srv/gitlab/config /srv/gitlab/data /srv/gitlab/logs```, и создадим **docker-compose.yml** в каталоге **/srv/gitlab/** с содержимым:
+```
+web:
+  image: 'gitlab/gitlab-ce:latest'
+  restart: always
+  hostname: 'gitlab.example.com'
+  environment:
+    GITLAB_OMNIBUS_CONFIG: |
+      external_url 'http://<YOUR-VM-IP>'
+  ports:
+    - '80:80'
+    - '443:443'
+    - '2222:22'
+  volumes:
+    - '/srv/gitlab/config:/etc/gitlab'
+    - '/srv/gitlab/logs:/var/log/gitlab'
+    - '/srv/gitlab/data:/var/opt/gitlab'
+  ```
+  
