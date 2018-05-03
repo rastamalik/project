@@ -235,6 +235,7 @@ web:
   * переменная **TLSKEY** значение файла **key.pem**.
   * переменная **CI_REGISTRY_USER** login на Docker Hub
   * переменная **CI_REGISTRY_PASSWORD** пароль от Docker Hub
+  ![gitlab1](https://github.com/rastamalik/project/blob/master/terraform/4.png?raw=true "Optional Title")
   
   
   
