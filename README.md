@@ -115,3 +115,8 @@ docker-compose up -d
 docker-compose start crawler
 ```
 Работующее приложение выглядит так:
+![Pipeline1](https://github.com/Otus-DevOps-2017-11/rastamalik_microservices/blob/kubernetes-4/kubernetes/Charts/1.png?raw=true "Optional Title")
+  
+![Pipeline2](https://github.com/Otus-DevOps-2017-11/rastamalik_microservices/blob/kubernetes-4/kubernetes/Charts/2.png?raw=true "Optional Title")
+
+ ![Pipeline3](https://github.com/Otus-DevOps-2017-11/rastamalik_microservices/blob/kubernetes-4/kubernetes/Charts/3.png?raw=true "Optional Title")
