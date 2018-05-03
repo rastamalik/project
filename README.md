@@ -49,10 +49,7 @@ CMD ["python", "-u", "crawler.py","https://vitkhab.github.io/search_engine_test_
 ```
 Dockerfile crawler_ui
 
-FROM ubuntu:12.04
-ENV DEBIAN_FRONTEND noninteractive
-RUN apt-get update
-RUN apt-get install -y python python-pip python-virtualenv gunicorn
+FROM  python:3.6.0-alpine 
 RUN mkdir -p /deploy/app
 COPY gunicorn_config.py /deploy/gunicorn_config.py
 COPY app /deploy/app
@@ -123,6 +120,7 @@ docker-compose start crawler
  
  
 2. Для развертывания приложения для прогона в GitLab CI нам понадобяться два сервера, один для для запуска **gitlab-runner** второй для сервиса **Docker**.
+
 a) Создадим VM для **gitlab-runner** с помощью **terraform**:
 ```
 provider "google" {
@@ -430,8 +428,8 @@ docker-stop-monitoring:
     - docker        
   
 ```
-
-  
-  
+ ![gitlab2](https://github.com/rastamalik/project/blob/master/terraform/7.png?raw=true "Optional Title")
+ ![gitlab3](https://github.com/rastamalik/project/blob/master/terraform/5.png?raw=true "Optional Title") 
+ ![gitlab4](https://github.com/rastamalik/project/blob/master/terraform/6.png?raw=true "Optional Title")
   
   
