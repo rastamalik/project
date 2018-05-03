@@ -665,5 +665,6 @@ services:
      
   
 ```
-
+ ![gitlab21](https://github.com/rastamalik/project/blob/master/terraform/24.png?raw=true "Optional Title")
+ ![gitlab22](https://github.com/rastamalik/project/blob/master/terraform/25.png?raw=true "Optional Title")
 
