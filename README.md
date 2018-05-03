@@ -587,6 +587,83 @@ groups:
         summary: 'Instance {{ $labels.instance }} down'
 ```
 * при падении одного из сервисов идет оповещение в slack и сообщение по почте.
+ ![gitlab20](https://github.com/rastamalik/project/blob/master/terraform/23.png?raw=true "Optional Title")
 
-а)
+f) Систему логирования построим на примере **Elastic** стека, который включает в себя 3 основных компонента:
+• **ElasticSearch** (TSDB и поисковый движок для хранения данных),  
+• **Logstash** (для агрегации и трансформации данных ),  
+• **Kibana**  ( для визуализации). 
+
+Для агрегации логов вместо **Logstash** мы будем использовать **Fluentd**, создадим каталог **logging** c подкаталогом **fluentd** c docker-файлом и fluent.conf c настройками:
+```
+Dockerfile
+
+FROM fluent/fluentd:v0.12
+RUN gem install fluent-plugin-elasticsearch --no-rdoc --no-ri --version 1.9.5
+RUN gem install fluent-plugin-grok-parser --no-rdoc --no-ri --version 1.0.0
+ADD fluent.conf /fluentd/etc
+```
+```
+fluent.conf
+
+<source>
+  @type forward
+  port 24224
+  bind 0.0.0.0
+</source>
+<filter service.crawler>
+  @type parser
+  format json
+  key_name log
+</filter>
+
+
+
+<match *.**>
+  @type copy
+  <store>
+    @type elasticsearch
+    host elasticsearch
+    port 9200
+    logstash_format true
+    logstash_prefix fluentd
+    logstash_dateformat %Y%m%d
+    include_tag_key true
+    type_name access_log
+    tag_key @log_name
+    flush_interval 1s
+  </store>
+  <store>
+    @type stdout
+  </store>
+</match>
+```
+* для запуска сервисов логирования создадим файл **docker-compose-logging.yml**:
+```
+version: '3.3'
+services:
+  fluentd:
+    
+    build: ./logging/fluentd
+    ports:
+      - "24224:24224"
+      - "24224:24224/udp"
+     
+
+  elasticsearch:
+    image: elasticsearch
+    expose:
+      - 9200
+    ports:
+      - "9200:9200"
+    
+    
+  kibana:
+    image: kibana
+    ports:
+      - "5601:5601"
+     
+  
+```
+
 
