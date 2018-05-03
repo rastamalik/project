@@ -438,3 +438,97 @@ docker-stop-monitoring:
  ![gitlab7](https://github.com/rastamalik/project/blob/master/terraform/10.png?raw=true "Optional Title")
  ![gitlab8](https://github.com/rastamalik/project/blob/master/terraform/11.png?raw=true "Optional Title")
  
+
+
+3. Мониторинг и логирование
+a) Для мониторинга используем **Prometheus**, а для визуализации **Grafana**, в каталоге **monitoring** создадим каталог **prometheus** c docker файлом и файлом конфигруации:
+```
+Dockerfile
+FROM  prom/prometheus:v2.1.0
+ADD  prometheus.yml /etc/prometheus/
+ADD  alerts.yml   /etc/prometheus/
+```
+```
+prometheus.yml
+
+---
+global:
+  scrape_interval: '5s'
+rule_files:
+  - "alerts.yml"
+
+alerting:
+  alertmanagers:
+  - scheme: http
+    static_configs:
+    - targets:
+      - "alertmanager:9093"
+scrape_configs:
+  - job_name: 'prometheus'
+    static_configs:
+      - targets:
+        - 'localhost:9090'
+
+  - job_name: 'crawler_ui'
+    static_configs:
+      - targets:
+        - 'crawler_ui:8000'
+
+  - job_name: 'crawler'
+    static_configs:
+      - targets:
+        - 'crawler:8000'
+```
+b) Для запуска **Prometheus** и **Grafana** создадим отдельный **docker-compose-monitoring.yml**:
+```
+version: '3.3'
+services:
+  prometheus:
+    image: rastamalik/prometheus
+    ports:
+      - '9090:9090'
+    volumes:
+      - prometheus_data:/prometheus
+    networks:
+      - reddit
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention=1d'
+
+  alertmanager: 
+     image: rastamalik/alertmanager 
+     command: 
+      - '--config.file=/etc/alertmanager/config.yml' 
+     ports: 
+      - 9093:9093 
+     networks:
+      - reddit
+  grafana:
+    image: grafana/grafana:5.0.0
+    volumes:
+      - grafana_data:/var/lib/grafana
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=secret
+    depends_on:
+      - prometheus
+    networks:
+      - reddit  
+    ports:
+      - 3000:3000
+
+
+ 
+
+
+volumes:
+  prometheus_data:
+  grafana_data:
+networks:
+   reddit:
+```
+d) Посмотрим поднятые таргеты и снимем метрики для приложения и отправим в **Grafana**:
+
+
+
