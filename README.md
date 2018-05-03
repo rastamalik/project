@@ -217,4 +217,25 @@ web:
     - '/srv/gitlab/logs:/var/log/gitlab'
     - '/srv/gitlab/data:/var/opt/gitlab'
   ```
+ После регистрации и создания группы и пректа на Gitlab, создадим **runner**:
+ ```
+ gitlab-runner register -n \
+  --url http://35.187.110.133/ \
+  --registration-token  \
+  --executor docker \
+  --description "my-runner" \
+  --docker-image "docker:latest" \
+  --docker-privileged \
+  --tag-list docker
+  ```
+  f) Настроим секретные переменные в Gitlab-CI:
+  В настройках CI/CD в Secret variables введем переменные:
+  * переменная **TLSCACERT** значение файла **ca.pem** созданным на **docker-host2**
+  * переменная **TLSCERT** значение файла **cert.pem**;
+  * переменная **TLSKEY** значение файла **key.pem**.
+  * переменная **CI_REGISTRY_USER** login на Docker Hub
+  * переменная **CI_REGISTRY_PASSWORD** пароль от Docker Hub
+  
+  
+  
   
