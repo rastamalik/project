@@ -1,0 +1,21 @@
+global:
+ 
+   slack_api_url:  'https://hooks.slack.com/services/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' 
+route:
+  group_by: [Alertname]
+  receiver: email
+route:
+ receiver: slack-notifications   
+ group_by: [Alertname]
+receivers:
+- name: email
+  email_configs:
+  - to: rastamalik@gmail.com
+    from: rastamalik@gmail.com
+    smarthost: smtp.gmail.com:587
+    auth_username: "rastamalik@gmail.com"
+    auth_identity: "rastamalik@gmail.com"
+    auth_password: "xela4321"
+- name:  slack-notifications 
+  slack_configs:
+  - channel: '#rastamalik'

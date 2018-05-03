@@ -1,0 +1,27 @@
+---
+global:
+  scrape_interval: '5s'
+rule_files:
+  - "alerts.yml"
+
+alerting:
+  alertmanagers:
+  - scheme: http
+    static_configs:
+    - targets:
+      - "alertmanager:9093"
+scrape_configs:
+  - job_name: 'prometheus'
+    static_configs:
+      - targets:
+        - 'localhost:9090'
+
+  - job_name: 'crawler_ui'
+    static_configs:
+      - targets:
+        - 'crawler_ui:8000'
+
+  - job_name: 'crawler'
+    static_configs:
+      - targets:
+        - 'crawler:8000'

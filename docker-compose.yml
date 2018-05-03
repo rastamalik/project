@@ -1,0 +1,42 @@
+version: '3.3'
+services:
+  mongo:
+    image: mongo:latest
+    networks:
+      - reddit
+  crawler_ui:
+    image: rastamalik/crawler_ui:latest
+    ports:
+      - 8000:8000/tcp
+      
+    networks:
+      - reddit
+    logging:
+      driver: "fluentd"
+      options:
+        fluentd-address: localhost:24224
+        tag: service.crawler_ui
+  crawler:
+     image: rastamalik/crawler:latest
+     networks:
+       - reddit
+     logging:
+      driver: "fluentd"
+      options:
+        fluentd-address: localhost:24224
+        tag: service.crawler
+
+  rabbit:
+   image: rabbitmq:3-management 
+   ports:
+      - "15672:15672"
+      - "5672:5672"
+      - "5671:5671"
+   environment: 
+      RABBITMQ_DEFAULT_PASS: rabbitmq
+      RABBITMQ_DEFAULT_USER: rabbitmq
+      RABBITMQ_DEFAULT_VHOST: /
+
+networks:
+  reddit:
+    driver: bridge
