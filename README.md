@@ -530,5 +530,16 @@ networks:
 ```
 d) Посмотрим поднятые таргеты и снимем метрики для приложения и отправим в **Grafana**:
 
+![gitlab9](https://github.com/rastamalik/project/blob/master/terraform/12.png?raw=true "Optional Title")
+ ![gitlab10](https://github.com/rastamalik/project/blob/master/terraform/13.png?raw=true "Optional Title") 
+ ![gitlab11](https://github.com/rastamalik/project/blob/master/terraform/14.png?raw=true "Optional Title")
+ ![gitlab12](https://github.com/rastamalik/project/blob/master/terraform/15.png?raw=true "Optional Title")
+ ![gitlab13](https://github.com/rastamalik/project/blob/master/terraform/16.png?raw=true "Optional Title")
+ ![gitlab14](https://github.com/rastamalik/project/blob/master/terraform/17.png?raw=true "Optional Title") 
+ ![gitlab15](https://github.com/rastamalik/project/blob/master/terraform/18.png?raw=true "Optional Title")
+ ![gitlab16](https://github.com/rastamalik/project/blob/master/terraform/19.png?raw=true "Optional Title")
+ ![gitlab17](https://github.com/rastamalik/project/blob/master/terraform/20.png?raw=true "Optional Title")
+ ![gitlab18](https://github.com/rastamalik/project/blob/master/terraform/21.png?raw=true "Optional Title") 
+ ![gitlab19](https://github.com/rastamalik/project/blob/master/terraform/22.png?raw=true "Optional Title")
 
 
