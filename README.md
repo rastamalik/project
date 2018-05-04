@@ -1,3 +1,4 @@
+[![Build Status](https://travis-ci.org/rastamalik/project.svg?branch=master)](https://travis-ci.org/rastamalik/project)
 # project
 1. Проект **CRAWLER** разбит на три части:
 * Это описание работы приложения на **docker-host**
