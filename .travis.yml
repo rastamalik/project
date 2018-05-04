@@ -1,6 +1,7 @@
 Language: python
 python:
 - '2.7'
+- '3.6'
 install:
 - sudo pip install six --upgrade 
 script:
@@ -12,4 +13,6 @@ script:
 - sudo pip install -r requirements-test.txt
 - coverage run -m unittest discover -s /
 - coverage report  ../app/crawler.py
-
+- cd ../app
+- sudo pip install -r requirements.txt
+- FLASK_APP=ui.py gunicorn ui:app -b 0.0.0.0
