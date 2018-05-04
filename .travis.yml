@@ -1,15 +1,22 @@
 sudo: required
 
 language: ruby
+env:
+  - DOCKER_COMPOSE_VERSION=1.4.2
 
 services:
   - docker
 before_install:
   - cd search_engine_ui
   - docker build -t rastamalik/crawler_ui .
-  - docker run rastamalik/crawler_ui /bin/sh -c "cd /root/crawler_ui; bundle exec foreman start;"
-  - docker ps -a
-  - docker run rastamalik/crawler_ui /bin/sh -c "cd /root/crawler_ui; bundle exec rake test"
+  - cd ../search_engine_crawler
+  - docker build -t rastamalik/crawler
+  - sudo rm /usr/local/bin/docker-compose
+  - curl -L https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-`uname -s`-`uname -m` > docker-compose
+  - chmod +x docker-compose
+  - sudo mv docker-compose /usr/local/bin
+  - cd ..
+  - docker-compose up
   
 
 script:
