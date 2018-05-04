@@ -2,9 +2,11 @@ Language: python
 python:
 - '2.7'
 install:
-- cd search_engine_ui/tests
+
 - pip install backports.ssl_match_hostname
-- pip install -q -r requirements-test.txt
+
 script:
+- cd search_engine_ui/tests
+- pip install -q -r requirements-test.txt
 - coverage run -m unitest diccover -s /
 - coverage report ui.py
