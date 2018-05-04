@@ -7,8 +7,9 @@ services:
 before_install:
   - cd search_engine_ui
   - docker build -t rastamalik/crawler_ui .
-  - docker run rastamalik/crawler_ui
+  - docker run rastamalik/crawler_ui /bin/sh -c "cd /root/crawler_ui; bundle exec foreman start;"
   - docker ps -a
+  - docker run rastamalik/crawler_ui /bin/sh -c "cd /root/crawler_ui; bundle exec rake test"
   
 
 script:
