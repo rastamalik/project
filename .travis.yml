@@ -1,19 +1,11 @@
-sudo: required
-
-language: ruby
-env:
-  - DOCKER_COMPOSE_VERSION=1.4.2
-
-services:
-  - docker
-before_install:
-  - cd search_engine_ui
-  - docker build -t rastamalik/crawler_ui .
-  - docker run -d rastamalik/crawler_ui
-  - cd ../search_engine_crawler
-  - docker build -t rastamalik/crawler .
-  - docker run -d rastamalik/crawler
-  - docker ps -a
-  
-
+Language: python
+python:
+- '2.7'
+install:
+- sudo pip install six --upgrade 
+script:
+- cd search_engine_ui/tests
+- pip install -r requirements.txt -r requirements-test.txt
+- coverage run -m unittest discover -s /
+- coverage report --include app/ui.py
 
