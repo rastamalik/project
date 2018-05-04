@@ -1,11 +1,15 @@
-Language: python
-python:
-- '2.7'
-- '3.6'
+sudo: required
 
+language: ruby
+
+services:
+  - docker
+before_install:
+  - cd search_engine_ui
+  - docker build -t rastamalik/crawler_ui .
+  - docker run rastamalik/crawler_ui
+  - docker ps -a
+  
 
 script:
-- cd search_engine_ui/tests
-- pip install -q -r requirements-test.txt
-- coverage run -m unitest diccover -s /
-- coverage report ui.py
+  - bundle exec rake test  
