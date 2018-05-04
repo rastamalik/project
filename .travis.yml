@@ -2,9 +2,7 @@ Language: python
 python:
 - '2.7'
 - '3.6'
-install:
-- sudo pip install six --upgrade 
-- pip install backports.ssl_match_hostname
+
 
 script:
 - cd search_engine_ui/tests
