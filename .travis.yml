@@ -10,7 +10,7 @@ before_install:
   - cd search_engine_ui
   - docker build -t rastamalik/crawler_ui .
   - cd ../search_engine_crawler
-  - docker build -t rastamalik/crawler
+  - docker build -t rastamalik/crawler .
   - sudo rm /usr/local/bin/docker-compose
   - curl -L https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-`uname -s`-`uname -m` > docker-compose
   - chmod +x docker-compose
