@@ -8,4 +8,8 @@ script:
 - sudo pip install -r requirements-test.txt
 - coverage run -m unittest discover -s /
 - coverage report  ../app/ui.py
+- cd ../../search_engine_crawler/tests
+- sudo pip install -r requirements-test.txt
+- coverage run -m unittest discover -s /
+- coverage report  ../app/crawler.py
 
