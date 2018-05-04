@@ -1,6 +1,6 @@
 Language: python
 python:
-- '3.6'
+- '2.7'
 install:
 - cd search_engine_ui/tests
 - pip install -q r requirements-test.txt
