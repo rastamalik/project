@@ -1,6 +1,7 @@
 Language: python
 python:
 - '2.7'
+- '3.6'
 install:
 
 - pip install backports.ssl_match_hostname
