@@ -15,4 +15,4 @@ script:
 - coverage report  ../app/crawler.py
 - cd ../app
 - sudo pip install -r requirements.txt
-- FLASK_APP=ui.py gunicorn ui:app -b 0.0.0.0
+- sudo FLASK_APP=ui.py gunicorn ui:app -b 0.0.0.0
